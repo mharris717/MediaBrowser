@@ -1,76 +1,39 @@
-module FromHash
-  def from_hash(ops)
-    ops.each do |k,v|
-      send("#{k}=",v)
-    end
-  end
-  def initialize(ops={})
-    from_hash(ops)
-  end
-end
-
-class String
-  def without_junk_chars
-    gsub(/[ \-_.]/," ")
-  end
-end
-
-module Enumerable
-  def group_by
-    res = Hash.new { |h,k| h[k] = [] }
-    each { |x| res[yield(x)] << x }
-    res
-  end
-end
+require 'rubygems'
+require 'imdb_tv'
+require File.dirname(__FILE__) + "/ext"
 
 module MediaBrowser
   class Media
     include FromHash
     attr_accessor :path
+    def season_regexes
+      [/([^a-z0-9])(S[ -]?)(\d+)/i,/([^a-z0-9])(Season\s?)(\d+)/i]
+    end
     def season
-      return $1.to_i if path =~ /[^a-z0-9]S[ -]?(\d+)/i or path =~ /[^a-z0-9]Season\s?(\d+)/i
-      potential_identifying_numbers.each do |str|
-        return str[0..-3].to_i
+      season_regexes.each do |reg|
+        return $3.to_i if path =~ reg
       end
-      nil
+      potential_identifying_number ? potential_identifying_number[0..-3].to_i : nil
     end
     def episode_num
       return $1.to_i if path =~ /E(\d+)/i
-      potential_identifying_numbers.each do |str|
-        return str[-2..-1].to_i
-      end
-      nil
+      potential_identifying_number ? potential_identifying_number[-2..-1].to_i : nil
     end
     def filename
       File.basename(path)
     end
-    def potential_identifying_numbers
-      filename.scan(/\d{3,4}/)
+    def potential_identifying_number
+      filename.scan(/\d{3,4}/).first
     end
     def show_title_from_dir
-      res = last_dir
-      sb = lambda do |*args|
-        res = res.gsub(*args)
-      end
-      
-      sb[/([^a-z0-9])(S[ -]?\d+)/i,'\1']
-      sb[/([^a-z0-9])(Season\s?\d+)/i,'\1']
-      sb[/[ \-_.]/," "]
-      res.strip
+      res = season_regexes.inject(last_dir) { |res,reg| res.gsub(reg,'\1') }
+      res.without_junk_chars.strip
     end
     def show_title_from_file
-      if filename =~ /^(.*)\d{3,4}/
-        $1.without_junk_chars.strip
-      else
-        nil
-      end
+      (filename =~ /^(.*)\d{3,4}/) ? $1.without_junk_chars.strip : nil
     end
     def show_title
-      if has_dir?
-        show_title_from_dir
-      else
-        show_title_from_file
-      end
+      has_dir? ? show_title_from_dir : show_title_from_file
     end
     def has_dir?
       true
@@ -79,7 +42,7 @@ module MediaBrowser
       File.dirname(path).split("/")[-1]
     end
     def episode_title
-      Shows.instance.get(show_title).get_title(self)
+      ImdbTV::Shows.instance.get(show_title).get_title(self)
     end
     def to_s
       "#{show_title} Season #{season}, Ep #{episode_num} - #{episode_title}"
