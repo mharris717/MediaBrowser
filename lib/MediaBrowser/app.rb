@@ -6,10 +6,10 @@ Shoes.setup do
   gem 'fattr'
   gem 'hpricot'
   gem 'activerecord'
+  gem 'GFunk911-imdb-tv'
 end
 
-require File.dirname(__FILE__) + "/media"
-require File.dirname(__FILE__) + "/imdb"
+require File.dirname(__FILE__) + "/../MediaBrowser"
 
 class Foo
   fattr(:bar) { 'abc' }
@@ -31,7 +31,40 @@ Shoes.app :width => 300, :height => 400 do
 end
 end
 
-if true
+class Object
+  def local_methods
+    res = methods - 7.methods - "".methods
+    #res.sort_by { |x| x.to_s }
+    res
+  end
+end
+
+class MediaApp < Shoes
+  url '/', :index
+  fattr(:dir) { MediaBrowser::Dir.new(:path => '/tmp/temp_videos_dir') }
+  def display_show(show)
+    @ep_stack.clear
+    eps = dir.media.select { |x| x.show_title == show }
+    @ep_stack.append do
+      para show
+      eps.each do |ep|
+        para(link(ep.to_s) { ep.play! })
+      end
+    end
+  end
+  def index
+    stack do
+      list_box(:items => dir.shows) do |*args|
+        select_show(args.first.text)
+      end
+    end
+    @ep_stack = stack
+  end
+end
+
+Shoes.app
+
+if false
 class MHolder
   def episodes
     Dir["/Users/mharris/TV/**/*.*"].map { |x| MediaBrowser::Media.new(:path => x) }

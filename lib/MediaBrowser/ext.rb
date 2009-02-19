@@ -22,3 +22,19 @@ module Enumerable
     res
   end
 end
+
+def all_dirs_recursive(dir)
+  dir.split("/")[1..-1].inject([]) do |paths,dir|
+    paths + ["#{paths[-1]}/#{dir}"]
+  end
+end
+
+def mkdir_if(dir)
+  FileUtils.mkdir(dir) unless FileTest.exists?(dir)
+end
+
+def mkdir_recursive(dir)
+  all_dirs_recursive(dir).each do |dir|
+    mkdir_if(dir)
+  end
+end

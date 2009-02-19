@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + "/spec_helper"
-
 MB = MediaBrowser
 
 def should_have_season(path,season)
@@ -35,15 +34,13 @@ describe "Media" do
   it 'smoke' do
     2.should == 2
   end
-  it 'season' do
-    @media.season.should == 1
-  end
   it 'filename' do
     @media.filename.should == 'E1.avi'
   end
   it 'last_dir' do
     @media.last_dir.should == 'Breaking Bad - Season 1'
   end
+  should_have_season "/Videos/Breaking Bad - Season 1/E1.avi",1
   should_have_season "/Videos/S2/E3.avi",2
   should_have_season "/Videos/Season 2/E4.avi",2
   should_have_season "/Videos/SEASON 2/E4/avi",2

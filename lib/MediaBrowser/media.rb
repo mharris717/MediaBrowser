@@ -36,8 +36,9 @@ module MediaBrowser
       has_dir? ? show_title_from_dir : show_title_from_file
     end
     def has_dir?
-      true
+      has_dir
     end
+    fattr(:has_dir) { true }
     def last_dir
       File.dirname(path).split("/")[-1]
     end
@@ -49,6 +50,12 @@ module MediaBrowser
     end
     def season_to_s
       "#{show_title} Season #{season}"
+    end
+    def <=>(ep)
+      [show_title,season,episode_num] <=> [ep.show_title,ep.season,ep.episode_num]
+    end
+    def play!
+      puts `/Applications/VLC.app/Contents/MacOS/VLC "#{path}"`
     end
   end
 end
