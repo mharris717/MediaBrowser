@@ -26,6 +26,6 @@ describe StoreHash do
   end
   after(:each) do
     ActiveRecord::Base.clear_all_connections!
-    FileUtils.rm(StoreRow.db_path)
+    #FileUtils.rm(StoreRow.db_path)
   end
 end

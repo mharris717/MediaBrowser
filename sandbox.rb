@@ -9,6 +9,8 @@ show = Show.new(:title => '30 Rock')
 show.episodes.each { |x| x.to_s }
 puts Time.now
 end
+
+if false
 require 'gtk2'
 #require 'ftools' #File tools...
 
@@ -35,3 +37,9 @@ class Tree
 end
 
 Tree.new.load!
+end
+
+MediaBrowser::Dir.new(:path => '/Users/mharris/Downloads').media.each { |x| puts x.to_s + " " + x.path }
+
+#m = MediaBrowser::Media.new(:path => "/Videos/30 Rock Season 3/E11.avi")
+#m.open_in_hulu!

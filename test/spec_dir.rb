@@ -44,6 +44,6 @@ describe MB::Dir do
     @dir.media_for_show('24').size.should == 97
   end
   after do
-    FileUtils.rm_r(@root)
+    #FileUtils.rm_r(@root)
   end
 end

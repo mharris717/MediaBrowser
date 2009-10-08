@@ -7,6 +7,7 @@ Shoes.setup do
   gem 'hpricot'
   gem 'activerecord'
   gem 'GFunk911-imdb-tv'
+  gem 'facets'
 end
 
 require File.dirname(__FILE__) + "/../MediaBrowser"
@@ -42,9 +43,9 @@ end
 class MediaApp < Shoes
   url '/', :index
   fattr(:dir) { MediaBrowser::Dir.new(:path => '/tmp/temp_videos_dir') }
-  def display_show(show)
+  def display_show(show,season)
     @ep_stack.clear
-    eps = dir.media.select { |x| x.show_title == show }
+    eps = dir.media.select { |x| x.show_title == show and x.season == season }
     @ep_stack.append do
       para show
       eps.each do |ep|
@@ -52,10 +53,18 @@ class MediaApp < Shoes
       end
     end
   end
+  def update_season_dropdown(show)
+    seasons = dir.media.select { |x| x.show_title == show }.map { |x| x.season }.uniq.sort
+    @seasons.items = seasons.map { |x| "Season #{x}"}
+  end
   def index
     stack do
-      list_box(:items => dir.shows) do |*args|
-        select_show(args.first.text)
+      @shows = list_box(:items => dir.shows) do |*args|
+        update_season_dropdown(args.first.text)
+      end
+      @seasons = list_box(:items => []) do |box|
+        season = box.text.split(/ /)[-1].to_i
+        display_show(@shows.text,season)
       end
     end
     @ep_stack = stack

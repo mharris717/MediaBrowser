@@ -13,18 +13,31 @@ def should_have_episode_num(path,ep)
   end
 end
 
-def should_have_show_title(path,show)
+def should_have_show_title_inner(path,show)
   it "#{path} should be show #{show}" do
     MB::Media.new(:path => path).show_title.should == show
   end
 end
 
-def should_have_show_title_no_dir(path,show)
+def should_have_show_title_no_dir_inner(path,show)
   it "#{path} should be show #{show}" do
     media = MB::Media.new(:path => path)
     media.stub!('has_dir?' => false)
     media.show_title.should == show
   end
+end
+
+def should_have_show_title(*args)
+  should_have_show_title_inner(*args)
+  #should_have_show_title_no_dir_inner(*args)
+end
+
+def should_have_show_title_no_dir(*args)
+  #should_have_show_title_inner(*args)
+  should_have_show_title_no_dir_inner(*args)
+end
+
+def should_parse(*args)
 end
 
 describe "Media" do
@@ -49,22 +62,53 @@ describe "Media" do
   should_have_season "/Videos/Season2/E4.avi",2
   should_have_season "/Videos/Wall-E.avi",nil
   should_have_season "mad.men.201.hdtv-lol",2
+  should_have_season "mad.men.2x01.hdtv-lol",2
   should_have_season "/Videos/Mad Men S-2/E4.avi",2
   should_have_season "Breaking.Bad.S01E01.HDTV.XviD-BiA.avi",1
+  should_have_season "Breaking.Bad.S1E1.HDTV.XviD-BiA.avi",1
+  should_have_season "Breaking.Bad.S1 E1.HDTV.XviD-BiA.avi",1
   should_have_season "simpsons.1408.hdtv-lol",14
   
   should_have_episode_num "/Videos/S2/E3.avi",3
   should_have_episode_num "mad.men.201.hdtv-lol",1
+  should_have_episode_num "mad.men.2x03.thth",3
+  should_have_episode_num "mad.men.2x01.hdtv-lol",1
+  should_have_episode_num "mad.men.2x1.hdtv-lol",1
+  should_have_episode_num "/Videos/Mad Men S-2/E4.avi",4
+  should_have_episode_num "Breaking.Bad.S01E01.HDTV.XviD-BiA.avi",1
+  should_have_episode_num "Breaking.Bad.S1E1.HDTV.XviD-BiA.avi",1
+  should_have_episode_num "Breaking.Bad.S1 E1.HDTV.XviD-BiA.avi",1
+  should_have_episode_num "simpsons.1408.hdtv-lol",8
+  should_have_episode_num 'Sealab 2021.311.HDTV.XviD-LOL.avi',11
   
   should_have_show_title "/Videos/Breaking Bad - Season 1/E4.avi",'Breaking Bad'
   should_have_show_title "/Videos/Mad Men S-2/E4.avi",'Mad Men'
   should_have_show_title '/Videos/Top.Chef.S03/E3.avi','Top Chef'
   should_have_show_title '/Videos/The Wire Season 2/E5.avi','The Wire'
+  should_have_show_title '30.Rock.S03E11.HDTV.XviD-LOL.avi','30 Rock'
+  should_have_show_title '30.Rock.311.HDTV.XviD-LOL.avi','30 Rock'
+  should_have_show_title 'Sealab 2021.311.HDTV.XviD-LOL.avi','Sealab 2021'
   
   should_have_show_title_no_dir '/Videos/Breaking Bad.705.hdtv-lol','Breaking Bad'
   should_have_show_title_no_dir '/Videos/24.705.hdtv-lol','24'
   should_have_show_title_no_dir '/Videos/Breaking.Bad.705.hdtv-lol','Breaking Bad'
   should_have_show_title_no_dir '/Videos/Breaking.Bad705.hdtv-lol','Breaking Bad'
+  
+  should_parse "/Videos/Breaking Bad - Season 1/E1.avi",'Breaking Bad',1,1
+  should_parse "/Videos/S2/E3.avi",nil,2,3
+  should_parse "/Videos/Season 2/E4.avi",2
+  should_parse "/Videos/SEASON 2/E4/avi",2
+  should_parse "Its.Always.Sunny.S02E01E02",2
+  should_parse "MS14_S2E3.avi",2
+  should_parse "/Videos/Season2/E4.avi",2
+  should_parse "/Videos/Wall-E.avi",nil
+  should_parse "mad.men.201.hdtv-lol",2
+  should_parse "mad.men.2x01.hdtv-lol",2
+  should_parse "/Videos/Mad Men S-2/E4.avi",2
+  should_parse "Breaking.Bad.S01E01.HDTV.XviD-BiA.avi",1
+  should_parse "Breaking.Bad.S1E1.HDTV.XviD-BiA.avi",1
+  should_parse "Breaking.Bad.S1 E1.HDTV.XviD-BiA.avi",1
+  should_parse "simpsons.1408.hdtv-lol",14
   
   describe 'imdb' do
     it 'pilot title' do
