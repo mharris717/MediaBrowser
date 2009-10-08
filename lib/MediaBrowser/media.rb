@@ -1,5 +1,5 @@
 require 'rubygems'
-require File.dirname(__FILE__) + "/../../../imdb-tv/lib/imdb_tv"
+#require File.dirname(__FILE__) + "/../../../imdb-tv/lib/imdb_tv"
 require File.dirname(__FILE__) + "/ext"
 require 'andand'
 
@@ -24,7 +24,7 @@ end
 module MediaBrowser
   class Media
     include FromHash
-    attr_accessor :path
+    attr_accessor :path, :stat
     def season_regexes
       [/([^a-z0-9])(S[ -]?)(\d+)/i,/([^a-z0-9])(Season\s?)(\d+)/i,/()()(\d+)x(\d+)/]
     end
@@ -39,11 +39,11 @@ module MediaBrowser
       end
       nil
     end
-    def season
+    fattr(:season) do
       regex_match(season_regexes,path) { |*m| return m[3].to_i }
       potential_identifying_number ? potential_identifying_number[0..-3].to_i : nil
     end
-    def episode_num
+    fattr(:episode_num) do
       return $1.to_i if path =~ /E(\d+)/i
       return $1.to_i if path =~ /\dx(\d+)/i
       potential_identifying_number ? potential_identifying_number[-2..-1].to_i : nil
@@ -61,7 +61,7 @@ module MediaBrowser
     def show_title_from_file
       regex_match(show_regexes,filename) { |*m| m[1].andand.without_junk_chars.andand.strip }
     end
-    def show_title
+    fattr(:show_title) do
       if false
         show_title_from_dir.if_blank { show_title_from_file }
       else
@@ -92,6 +92,10 @@ module MediaBrowser
     end
     def <=>(ep)
       sort_arr <=> ep.sort_arr
+    end
+    def save!
+      require File.dirname(__FILE__) + "/media_db"
+      MediaRow.create!(:series => show_title, :season => season, :episode_num => episode_num, :path => path)
     end
     def play!
       puts `/Applications/VLC.app/Contents/MacOS/VLC "#{path}"`

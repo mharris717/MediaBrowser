@@ -43,3 +43,8 @@ rescue LoadError
 end
 
 task :default => :spec
+
+task :save_mocks do
+  require "lib/MediaBrowser"
+  MediaBrowser::Dir.mock_dir.media.each { |x| x.save! }
+end
