@@ -49,7 +49,7 @@ module MediaBrowser
           [1,2,3].map do |season|
             (1..13).map do |ep|
               stat = OpenStruct.new(:size => 99, :ctime => Time.now)
-              OpenStruct.new(:show_title => show, :episode_num => ep, :season_num => season, :stat => stat, :name => "#{show} Season #{season} Ep #{ep}")
+              OpenStruct.new(:show_title => show, :episode_num => ep, :season => season, :stat => stat, :name => "#{show} Season #{season} Ep #{ep}")
             end
           end
         end.flatten
