@@ -10,7 +10,7 @@ module MediaBrowser
       res.each do |ep|
         ep.has_dir = false if File.dirname(ep.path) == path
       end
-      res
+      res.select { |x| x.tv_show? }
     end
     fattr(:media) do
       unsorted_media.select { |x| x.full_desc? }.sort
@@ -25,7 +25,7 @@ module MediaBrowser
       media.map { |x| x.show_title }.uniq.sort
     end
     fattr(:series) do
-      media.group_by { |x| x.show_title }.map { |k,x| Series.new(:name => k, :media => x) }
+      media.group_by { |x| x.show_title }.map { |k,x| Series.new(:name => k, :media => x) }.sort_by { |x| x.name }
     end
     def children
       series

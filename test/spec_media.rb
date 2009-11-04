@@ -94,6 +94,11 @@ describe "Media" do
   should_have_show_title_no_dir '/Videos/Breaking.Bad.705.hdtv-lol','Breaking Bad'
   should_have_show_title_no_dir '/Videos/Breaking.Bad705.hdtv-lol','Breaking Bad'
   
+  should_have_show_title '/Volumes/Drobo/TV/Scrubs/Scrubs.S2.DVDRip_XviD-FoV/scrubs.2x01.my_overkill.dvdrip_xvid-fov.avi','Scrubs'
+  should_have_show_title '/Volumes/Drobo/TV/Extras/Extras - Season 1 - Complete/Extras - 1x01 - Ben Stiller.avi','Extras'
+  should_have_show_title '/Volumes/Drobo/TV/Deadwood/Deadwood - Season 3/tpz-deadwood305.avi','Deadwood'
+  #should_have_show_title "/Volumes/Drobo/TV/Human Giant/Human Giant - Extras/Human Giant - Hosting - Aziz Ansari with Vampire Weekend at Bonnaroo, the Summer Of Music, 2008, Xbox Live.avi"
+  
   should_parse "/Videos/Breaking Bad - Season 1/E1.avi",'Breaking Bad',1,1
   should_parse "/Videos/S2/E3.avi",nil,2,3
   should_parse "/Videos/Season 2/E4.avi",2
@@ -110,13 +115,13 @@ describe "Media" do
   should_parse "Breaking.Bad.S1 E1.HDTV.XviD-BiA.avi",1
   should_parse "simpsons.1408.hdtv-lol",14
   
-  describe 'imdb' do
-    it 'pilot title' do
-      @ep = MB::Media.new
-      @ep.stub!(:season => 1, :episode_num => 1, :show_title => 'Mad Men')
-      ImdbTV::Shows.instance.get("Mad Men").should_receive(:get_title).with(@ep).and_return('Smoke Gets in Your Eyes')
-      @ep.episode_title.should == 'Smoke Gets in Your Eyes'
-    end
-  end
+  # describe 'imdb' do
+  #    it 'pilot title' do
+  #      @ep = MB::Media.new
+  #      @ep.stub!(:season => 1, :episode_num => 1, :show_title => 'Mad Men')
+  #      ImdbTV::Shows.instance.get("Mad Men").should_receive(:get_title).with(@ep).and_return('Smoke Gets in Your Eyes')
+  #      @ep.episode_title.should == 'Smoke Gets in Your Eyes'
+  #    end
+  #  end
 end
 

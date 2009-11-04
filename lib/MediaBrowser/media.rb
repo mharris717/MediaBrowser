@@ -39,11 +39,11 @@ module MediaBrowser
       end
       nil
     end
-    fattr(:season) do
+    def season
       regex_match(season_regexes,path) { |*m| return m[3].to_i }
       potential_identifying_number ? potential_identifying_number[0..-3].to_i : nil
     end
-    fattr(:episode_num) do
+    def episode_num
       return $1.to_i if path =~ /E(\d+)/i
       return $1.to_i if path =~ /\dx(\d+)/i
       potential_identifying_number ? potential_identifying_number[-2..-1].to_i : nil
@@ -55,11 +55,17 @@ module MediaBrowser
       filename.scan(/\d{3,4}/).last
     end
     def show_title_from_dir
-      res = season_regexes.inject(last_dir) { |res,reg| res.gsub(reg,'\1') }
-      res.without_junk_chars.strip
+      res = season_regexes.inject(last_dir) { |res,reg| res.split(reg).first }
+      res = res.without_junk_chars.strip
+      #res = res.split(/(dvdrip|xvid|hdtv|720p)/i).first.without_junk_chars.strip
     end
     def show_title_from_file
-      regex_match(show_regexes,filename) { |*m| m[1].andand.without_junk_chars.andand.strip }
+      res = regex_match(show_regexes,filename) { |*m| m[1] }
+      if res =~ /-/ && res =~ /#{show_title_from_dir}/i
+        res = show_title_from_dir
+      end
+      res = res.andand.without_junk_chars.andand.strip
+      res
     end
     fattr(:show_title) do
       if false
@@ -74,11 +80,15 @@ module MediaBrowser
     def has_dir?
       has_dir
     end
+    def tv_show?
+      (120000000..400000000).include?(FileTest.size(path))
+    end
     fattr(:has_dir) { true }
     def last_dir
       File.dirname(path).split("/")[-1]
     end
     def episode_title
+      return "foo"
       ImdbTV::Shows.instance.get(show_title).get_title(self)
     end
     def to_s
@@ -95,7 +105,7 @@ module MediaBrowser
     end
     def save!
       require File.dirname(__FILE__) + "/media_db"
-      MediaRow.create!(:series => show_title, :season => season, :episode_num => episode_num, :path => path)
+      MediaRow.save_media(self)
     end
     def play!
       puts `/Applications/VLC.app/Contents/MacOS/VLC "#{path}"`
@@ -106,5 +116,6 @@ module MediaBrowser
     def open_in_hulu!
       ec "/usr/bin/open \"#{hulu_url}\""
     end
+    fattr(:media_id) { rand(100000000000000) }
   end
 end

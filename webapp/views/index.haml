@@ -1,0 +1,18 @@
+%html
+  %head
+    %script{:src => "jquery-1.3.2.js"}
+    %script{:src => "all.js"}
+    %link{:href => "all.css", :rel => 'stylesheet'}
+  %body
+    %select#series-dropdown
+      - @dir.series.each do |series|
+        %option{:value => series.name}= series.name
+    - @dir.series.each do |series|
+      .series.hidden{'data-series' => series.name}
+        %h1= series.name
+        - series.each do |season|
+          .season{'data-series' => series.name, 'data-season' => season.season}
+            %h2= season.name
+            - season.each do |ep|
+              %a{:id => ep.media_id, :href => "#"}= ep.to_s
+              %br
