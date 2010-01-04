@@ -48,3 +48,13 @@ task :save_mocks do
   require "lib/MediaBrowser"
   MediaBrowser::Dir.mock_dir.media.each { |x| x.save! }
 end
+
+task :save_actual do
+  require "lib/MediaBrowser"
+  MediaBrowser::Dir.new(:path => "/Volumes/Drobo/TV").media.each { |x| x.save! }
+end
+
+task :link_actual do
+  require "lib/MediaBrowser"
+  MediaBrowser::Dir.new(:path => "/Volumes/Drobo/TV").media.each { |x| x.make_link!("I:/LinkDir") }
+end

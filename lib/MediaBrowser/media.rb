@@ -116,6 +116,22 @@ module MediaBrowser
     def open_in_hulu!
       ec "/usr/bin/open \"#{hulu_url}\""
     end
+    def clean_filename
+      "#{show_title} - S#{season}E#{episode_num}"
+    end
+    def mkdir_if_compound(dir)
+      eat_exceptions { FileUtils.mkdir_p(dir) }
+    end
     fattr(:media_id) { rand(100000000000000) }
+    def make_link!(root_link_dir)
+      mkdir_if_compound File.join(root_link_dir,show_title,"Season #{season}")
+      filename = File.join(root_link_dir,show_title,"Season #{season}",clean_filename)
+      ec "mklink /H #{filename} #{path}"
+    end
   end
+end
+
+def eat_exceptions
+  yield
+rescue => exp
 end
